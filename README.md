@@ -1,2 +1,2 @@
 # Internship-Recommender
-Recoomends internships based on your skills
+Recommends internships based on your skills
