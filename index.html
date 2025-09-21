@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internify - PM Internship Recommender</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            --secondary-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --accent-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --dark-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.4);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated background particles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 118, 117, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 119, 198, 0.2) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-30px) rotate(1deg); }
+            66% { transform: translateY(-20px) rotate(-1deg); }
+        }
+
+        /* ===== LOGIN PAGE STYLES ===== */
+        #loginScreen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 50px 40px;
+            border-radius: 30px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            text-align: center;
+            position: relative;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-box::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: var(--primary-gradient);
+            border-radius: 32px;
+            z-index: -1;
+            opacity: 0.5;
+            filter: blur(20px);
+        }
+
+        .login-box h1 {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            letter-spacing: -2px;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            }
+            to {
+                text-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+            }
+        }
+
+        .login-box h2 {
+            margin-bottom: 30px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 18px;
+            font-weight: 400;
+        }
+
+        .input-group {
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 18px 24px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .login-box input:-webkit-autofill,
+        .login-box input:-webkit-autofill:hover,
+        .login-box input:-webkit-autofill:focus,
+        .login-box input:-webkit-autofill:active {
+            -webkit-transition: background-color 5000s ease-in-out 0s;
+            transition: background-color 5000s ease-in-out 0s;
+            -webkit-text-fill-color: white !important;
+        }
+
+        .login-box input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .login-box input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--secondary-gradient);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .login-btn:hover::before {
+            left: 100%;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            filter: brightness(1.1);
+        }
+
+        /* ===== MAIN APP STYLES ===== */
+        #appScreen {
+            display: none;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            box-shadow: 
+                0 30px 60px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .header {
+            background: var(--dark-gradient);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            animation: shimmer 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes shimmer {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 15px;
+            font-weight: 700;
+            position: relative;
+            z-index: 2;
+            letter-spacing: -1px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 18px;
+            position: relative;
+            z-index: 2;
+            font-weight: 300;
+        }
+
+        .user-profile {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+            z-index: 3;
+        }
+
+        .profile-pic-container {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .profile-pic {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+
+        .profile-pic:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .user-name {
+            font-size: 16px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-hint {
+            position: absolute;
+            bottom: -25px;
+            right: 0;
+            font-size: 11px;
+            opacity: 0.7;
+            white-space: nowrap;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-section {
+            padding: 50px 40px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .form-group {
+            margin-bottom: 35px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 17px;
+            letter-spacing: -0.5px;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            color: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .form-group select option {
+            background: #2a2a2a;
+            color: white;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .checkbox-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--secondary-gradient);
+            opacity: 0.1;
+            transition: left 0.5s;
+            z-index: 0;
+        }
+
+        .checkbox-item:hover::before {
+            left: 0;
+        }
+
+        .checkbox-item:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .checkbox-item input {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .checkbox-item label {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+            margin-bottom: 0;
+        }
+
+        .checkbox-item.selected {
+            border-color: rgba(79, 172, 254, 0.8);
+            background: rgba(79, 172, 254, 0.1);
+            box-shadow: 0 0 20px rgba(79, 172, 254, 0.2);
+        }
+
+        .get-recommendations-btn {
+            width: 100%;
+            padding: 20px;
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .get-recommendations-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .get-recommendations-btn:hover::before {
+            left: 100%;
+        }
+
+        .get-recommendations-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            filter: brightness(1.1) saturate(1.2);
+        }
+
+        .recommendations {
+            display: none;
+            padding: 50px 40px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .recommendations h2 {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .internship-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border-radius: 24px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .internship-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--secondary-gradient);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .internship-card:hover::before {
+            opacity: 1;
+        }
+
+        .internship-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .company-name {
+            color: rgba(79, 172, 254, 0.9);
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .match-score {
+            background: var(--secondary-gradient);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .card-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+
+        .detail-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
+        }
+
+        .card-description {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        .apply-btn {
+            background: var(--accent-gradient);
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .apply-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.4s;
+        }
+
+        .apply-btn:hover::before {
+            left: 100%;
+        }
+
+        .apply-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(250, 112, 154, 0.4);
+        }
+
+        .no-recommendations {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 60px 20px;
+        }
+
+        /* ===== Modal Styling - FIXED ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 50px 40px;
+            border-radius: 24px;
+            text-align: center;
+            width: 90%;
+            max-width: 450px;
+            animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            position: relative;
+            color: #333;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: scale(0.8) translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #2e7d32;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .success-icon {
+            font-size: 32px;
+            color: #4caf50;
+            filter: drop-shadow(0 2px 8px rgba(76, 175, 80, 0.3));
+        }
+
+        .modal-content p {
+            color: #555;
+            font-size: 16px;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            transition: all 0.3s;
+            font-weight: 300;
+            z-index: 10;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .close-btn:hover {
+            color: #666;
+            background: rgba(0, 0, 0, 0.1);
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 20px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .form-section {
+                padding: 30px 20px;
+            }
+
+            .recommendations {
+                padding: 30px 20px;
+            }
+
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+
+            .card-details {
+                grid-template-columns: 1fr;
+            }
+
+            .login-box h1 {
+                font-size: 36px;
+            }
+
+            .login-box {
+                padding: 40px 30px;
+            }
+
+            .user-profile {
+                position: relative;
+                top: 0;
+                right: 0;
+                flex-direction: column;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+
+            .header {
+                text-align: center;
+                padding-top: 20px;
+            }
+
+            .modal-content {
+                padding: 40px 30px;
+            }
+
+            .modal-content h2 {
+                font-size: 24px;
+            }
+
+            .success-icon {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== LOGIN SCREEN ===== -->
+    <div id="loginScreen">
+        <div class="login-box">
+            <h1>Internify</h1>
+            <h2>Enter Your Details</h2>
+            <div class="input-group">
+                <input type="text" id="name" placeholder="Full Name" required>
+            </div>
+            <div class="input-group">
+                <input type="number" id="age" placeholder="Age" required>
+            </div>
+            <div class="input-group">
+                <input type="email" id="email" placeholder="Email Address" required>
+            </div>
+            <button class="login-btn" onclick="login()">Continue</button>
+        </div>
+    </div>
+
+    <!-- ===== MAIN APP ===== -->
+    <div id="appScreen">
+        <div class="container">
+            <div class="header">
+                <div class="user-profile" id="userProfile" style="display: none;">
+                    <span class="user-name" id="displayName"></span>
+                    <div class="profile-pic-container">
+                        <div class="profile-pic" id="profilePic">
+                            <span id="profileInitial"></span>
+                        </div>
+                        <input type="file" class="file-input" id="profileUpload" accept="image/*">
+                        <div class="upload-hint">Click to upload</div>
+                    </div>
+                </div>
+                <h1>Find Your Perfect Internship</h1>
+                <p>Get personalized recommendations based on your profile</p>
+            </div>
+
+            <div class="form-section">
+                <form id="recommendationForm">
+                    <div class="form-group">
+                        <label for="education">Education Level</label>
+                        <select id="education" required>
+                            <option value="">Select your education level</option>
+                            <option value="12th">12th Pass</option>
+                            <option value="diploma">Diploma</option>
+                            <option value="undergraduate">Undergraduate</option>
+                            <option value="graduate">Graduate</option>
+                            <option value="postgraduate">Post Graduate</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="field">Field of Study</label>
+                        <select id="field" required>
+                            <option value="">Select your field</option>
+                            <option value="engineering">Engineering</option>
+                            <option value="commerce">Commerce/Business</option>
+                            <option value="science">Science</option>
+                            <option value="arts">Arts/Humanities</option>
+                            <option value="computer">Computer Science/IT</option>
+                            <option value="medical">Medical/Healthcare</option>
+                            <option value="agriculture">Agriculture</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location">Preferred Location</label>
+                        <select id="location" required>
+                            <option value="">Select preferred location</option>
+                            <option value="remote">Remote/Online</option>
+                            <option value="metro">Metro Cities</option>
+                            <option value="hometown">My Hometown</option>
+                            <option value="state">Anywhere in my State</option>
+                            <option value="anywhere">Anywhere in India</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Areas of Interest (Select up to 3)</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="finance" value="finance">
+                                <label for="finance">Finance</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="design" value="design">
+                                <label for="design">Design</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="research" value="research">
+                                <label for="research">Research</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="social" value="social">
+                                <label for="social">Social Impact</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="media" value="media">
+                                <label for="media">Media</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="healthcare" value="healthcare">
+                                <label for="healthcare">Healthcare</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="other" value="other">
+                                <label for="other">Other</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="get-recommendations-btn">
+                        Get My Recommendations
+                    </button>
+                </form>
+            </div>
+
+            <div id="recommendations" class="recommendations">
+                <h2>Your Personalized Recommendations</h2>
+                <div id="recommendationsList"></div>
+            </div>
+        </div>
+
+        <!-- Confirmation Modal -->
+        <div id="confirmationModal" class="modal">
+          <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2><span class="success-icon">✅</span>Application Submitted!</h2>
+            <p>Your application has been recorded successfully.</p>
+          </div>
+        </div>
+    </div>
+
+    <script>
+        // Login function
+        function login() {
+            const name = document.getElementById("name").value.trim();
+            const age = document.getElementById("age").value.trim();
+            const email = document.getElementById("email").value.trim();
+            if (name && age && email) {
+                document.getElementById("loginScreen").style.display = "none";
+                document.getElementById("appScreen").style.display = "block";
+                
+                // Set user profile info
+                document.getElementById("displayName").textContent = name;
+                document.getElementById("profileInitial").textContent = name.charAt(0).toUpperCase();
+                document.getElementById("userProfile").style.display = "flex";
+            } else {
+                alert("Please enter all details");
+            }
+        }
+
+        // Profile picture upload functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const profileUpload = document.getElementById('profileUpload');
+            const profilePic = document.getElementById('profilePic');
+            const profileInitial = document.getElementById('profileInitial');
+
+            if (profileUpload) {
+                profileUpload.addEventListener('change', function(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            // Create img element
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            
+                            // Clear profile pic and add image
+                            profilePic.innerHTML = '';
+                            profilePic.appendChild(img);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+        });
+
+        let internships = [];
+
+        // Handle checkbox selection limit and visual feedback
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const checked = document.querySelectorAll('input[type="checkbox"]:checked');
+                if (checked.length > 3) {
+                    this.checked = false;
+                    alert('Please select maximum 3 interests');
+                }
+                
+                // Update visual state
+                checkboxes.forEach(cb => {
+                    cb.closest('.checkbox-item').classList.toggle('selected', cb.checked);
+                });
+            });
+        });
+
+        async function loadInternships() {
+            const sheetId = "1deisrVQDKlpqUYg7oXsBTOLKSzYE2iFMroptS7kskMY";
+            try {
+                const response = await fetch(`https://opensheet.vercel.app/${sheetId}/Internships`);
+                internships = await response.json();
+                console.log("Internships Loaded:", internships);
+            } catch (error) {
+                console.error("Error loading internships:", error);
+            }
+        }
+
+        function scoreInternship(profile, job) {
+            let score = 0;
+            
+            // Education match (30 points)
+            if (job.Education?.toLowerCase().includes(profile.education)) {
+                score += 30;
+            }
+            
+            // Field relevance (25 points)
+            const fieldMapping = {
+                'computer': ['technology'],
+                'engineering': ['technology', 'research'],
+                'commerce': ['finance', 'marketing'],
+                'arts': ['media', 'design', 'social'],
+                'medical': ['healthcare', 'research'],
+                'science': ['research', 'technology'],
+                'agriculture': ['research', 'social'],
+                'other': ['other']
+            };
+            
+            if (fieldMapping[profile.field]) {
+                const relevantInterests = fieldMapping[profile.field];
+                const jobType = job.Type ? job.Type.toLowerCase() : "";
+                const jobReqs = job.Requirements ? job.Requirements.toLowerCase() : "";
+                
+                if (relevantInterests.some(interest => 
+                    jobType.includes(interest) || jobReqs.includes(interest))) {
+                    score += 25;
+                }
+            }
+            
+            // Location preference (15 points)
+            const jobLocation = job.Location ? job.Location.toLowerCase() : "";
+            if (profile.location === 'remote' && jobLocation.includes('remote')) {
+                score += 15;
+            } else if (profile.location === 'metro' && 
+                      (jobLocation.includes('bangalore') || jobLocation.includes('mumbai') || 
+                       jobLocation.includes('delhi') || jobLocation.includes('hyderabad') ||
+                       jobLocation.includes('pune') || jobLocation.includes('chennai'))) {
+                score += 15;
+            } else if (profile.location === 'anywhere') {
+                score += 10;
+            }
+            
+            // Interest match (30 points)
+            const reqs = job.Requirements ? job.Requirements.toLowerCase() : "";
+            const type = job.Type ? job.Type.toLowerCase() : "";
+            const matches = profile.interests.filter(interest => 
+                reqs.includes(interest) || type.includes(interest));
+            score += matches.length * 10;
+
+            return Math.min(score, 100);
+        }
+
+        function displayRecommendations(list) {
+            const container = document.getElementById("recommendationsList");
+            
+            if (list.length === 0) {
+                container.innerHTML = `
+                    <div class="no-recommendations">
+                        <h3>No matches found</h3>
+                        <p>Please try adjusting your preferences</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = list.map(job => `
+                    <div class="internship-card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">${job.Title || 'Internship Position'}</div>
+                                <div class="company-name">${job.Company || 'Company'}</div>
+                            </div>
+                            <div class="match-score">${job.score}% Match</div>
+                        </div>
+                        
+                        <div class="card-details">
+                            <div class="detail-item">
+                                <span class="detail-icon">📍</span>
+                                <span>${job.Location || 'Location TBD'}</span>
+                            </div>
+                            ${job.Duration ? `
+                            <div class="detail-item">
+                                <span class="detail-icon">⏱️</span>
+                                <span>${job.Duration}</span>
+                            </div>` : ''}
+                            ${job.Stipend ? `
+                            <div class="detail-item">
+                                <span class="detail-icon">💰</span>
+                                <span>${job.Stipend}</span>
+                            </div>` : ''}
+                        </div>
+                        
+                        ${job.Description ? `
+                        <div class="card-description">
+                            ${job.Description}
+                        </div>` : ''}
+                        
+                        <button class="apply-btn" onclick="showConfirmation()">
+                            Apply Now
+                        </button>
+                    </div>
+                `).join("");
+            }
+            
+            document.getElementById("recommendations").style.display = "block";
+            document.getElementById("recommendations").scrollIntoView({ behavior: 'smooth' });
+        }
+
+        document.getElementById("recommendationForm").addEventListener("submit", async e => {
+            e.preventDefault();
+            
+            if (!internships.length) {
+                await loadInternships();
+            }
+
+            const education = document.getElementById("education").value.toLowerCase();
+            const field = document.getElementById("field").value;
+            const location = document.getElementById("location").value;
+            const interests = Array.from(document.querySelectorAll("input[type='checkbox']:checked"))
+                .map(cb => cb.value);
+            
+            const profile = { education, field, location, interests };
+            
+            const scored = internships.map(job => ({
+                ...job,
+                score: scoreInternship(profile, job)
+            }));
+            
+            const sorted = scored.sort((a,b) => b.score - a.score).slice(0,5);
+            
+            displayRecommendations(sorted);
+        });
+
+        // Modal Functions
+        function showConfirmation() {
+          document.getElementById("confirmationModal").style.display = "flex";
+        }
+
+        function closeModal() {
+          document.getElementById("confirmationModal").style.display = "none";
+        }
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+          if (event.target === document.getElementById("confirmationModal")) {
+            closeModal();
+          }
+        }
+    </script>
+</body>
+</html>
